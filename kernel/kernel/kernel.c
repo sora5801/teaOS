@@ -1,5 +1,8 @@
 #include <stddef.h>
 #include <stdint.h>
+#include <gdt.h>
+#include <idt.h>
+#include <irq.h>
 #include <keyboard.h>
 
 #if defined(__linux__)
@@ -68,6 +71,16 @@ void term_print(const char* str) {
 
 void kernel_main(void) {
     term_init();
+    gdt_init();
+    idt_init();
+    irq_init();
+
+    term_print("GDT loaded.\n");
+    term_print("IDT loaded.\n");
+    term_print("IRQs enabled.\n");
+
+    __asm__ volatile ("sti");
+
     term_print("Keyboard polling demo\n");
     term_print("Type on the keyboard:\n");
 

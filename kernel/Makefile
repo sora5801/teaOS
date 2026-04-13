@@ -31,6 +31,10 @@ KERNEL_OBJS=\
 $(KERNEL_ARCH_OBJS) \
 kernel/kernel.o \
 kernel/keyboard.o \
+kernel/gdt.o \
+kernel/idt.o \
+kernel/isr.o \
+kernel/irq.o \
 
 OBJS=\
 $(ARCHDIR)/crti.o \
