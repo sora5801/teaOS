@@ -4,6 +4,7 @@
 #include <idt.h>
 #include <irq.h>
 #include <keyboard.h>
+#include <paging.h>
 
 #if defined(__linux__)
 #error "This code must be compiled with a cross-compiler"
@@ -74,15 +75,14 @@ void kernel_main(void) {
     gdt_init();
     idt_init();
     irq_init();
+    paging_init();
 
     term_print("GDT loaded.\n");
     term_print("IDT loaded.\n");
     term_print("IRQs enabled.\n");
+    term_print("Paging enabled.\n");
 
     __asm__ volatile ("sti");
-
-    term_print("Keyboard polling demo\n");
-    term_print("Type on the keyboard:\n");
 
     for (;;) {
         char c = keyboard_getchar();
