@@ -25,5 +25,6 @@ void terminal_setcursor(size_t row, size_t column);
 void terminal_clear_line(size_t row);
 
 void terminal_draw_capslock_indicator(void);
+uint8_t terminal_getcolor(void);
 
 #endif
