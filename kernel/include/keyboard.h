@@ -16,5 +16,6 @@ enum {
 int keyboard_getkey(void);
 int keyboard_has_key(void);
 void keyboard_handle_irq(void);
+int keyboard_capslock_enabled(void);
 
 #endif

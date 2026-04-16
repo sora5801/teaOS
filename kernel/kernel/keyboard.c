@@ -3,6 +3,7 @@
 
 #include <io.h>
 #include <keyboard.h>
+#include <kernel/tty.h>
 
 #define KBD_DATA_PORT 0x60
 #define KBD_BUF_SIZE 128
@@ -133,8 +134,10 @@ void keyboard_handle_irq(void)
     }
 
     if (code == 0x3A) {
-        if (!released)
+        if (!released){
             caps_lock = !caps_lock;
+	    terminal_draw_capslock_indicator();
+	}
         return;
     }
 
@@ -163,4 +166,9 @@ void keyboard_handle_irq(void)
     }
 
     kbd_push((int)(unsigned char)c);
+}
+
+int keyboard_capslock_enabled(void)
+{
+    return caps_lock;
 }

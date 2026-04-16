@@ -6,6 +6,7 @@
 #include <kernel/tty.h>
 #include <keyboard.h>
 #include <paging.h>
+#include <line_editor.h>
 
 #if defined(__linux__)
 #error "This code must be compiled with a cross-compiler"
@@ -15,11 +16,14 @@
 
 
 void kernel_main(void) {
+    char line[128];
+
     terminal_initialize();
     gdt_init();
     idt_init();
     irq_init();
     paging_init();
+    line_editor_init();
 
     terminal_writestring("GDT loaded.\n");
     terminal_writestring("IDT loaded.\n");
@@ -36,13 +40,14 @@ void kernel_main(void) {
     __asm__ volatile ("sti");
 
     for (;;) {
-        int key = keyboard_getkey();
+	terminal_writestring("> ");
+	int key = keyboard_getkey();
+	line_editor_readline(line, sizeof(line));
 
-        if (key >= 0 && key < 256) {
-            terminal_putchar((char)key);
-            continue;
-        }
-
+	terminal_writestring("You typed: ");
+	terminal_writestring(line);
+	terminal_putchar('\n');
+	
         switch (key) {
         case KEY_LEFT:
             terminal_move_cursor_left();

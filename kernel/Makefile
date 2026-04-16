@@ -36,6 +36,7 @@ kernel/idt.o \
 kernel/isr.o \
 kernel/irq.o \
 kernel/paging.o \
+kernel/line_editor.o \
 
 OBJS=\
 $(ARCHDIR)/crti.o \

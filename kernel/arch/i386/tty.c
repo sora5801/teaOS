@@ -5,6 +5,7 @@
 
 #include <kernel/tty.h>
 #include <io.h>
+#include <keyboard.h>
 
 #include "vga.h"
 
@@ -44,6 +45,7 @@ void terminal_initialize(void) {
 		}
 	}
 
+	terminal_draw_capslock_indicator();
 	terminal_update_cursor();
 }
 
@@ -125,6 +127,16 @@ static void terminal_update_cursor(void) {
 
 	outb(0x3D4, 0x0E);
 	outb(0x3D5, (uint8_t)((pos >> 8) & 0xFF));
+}
+
+static void terminal_draw_status_text(const char *text, size_t row, size_t col, uint8_t color) {
+	size_t i = 0;
+	while (text[i] != '\0') {
+		if (col + i >= VGA_WIDTH)
+			break;
+		terminal_putentryat((unsigned char)text[i], color, col + i, row);
+		i++;
+	}
 }
 
 void terminal_putchar(char c) {
@@ -240,5 +252,50 @@ void terminal_delete_at_cursor(void) {
 	}
 
 	terminal_putentryat(' ', terminal_color, VGA_WIDTH - 1, terminal_row);
+	terminal_update_cursor();
+}
+
+size_t terminal_getrow(void) {
+	return terminal_row;
+}
+
+size_t terminal_getcolumn(void) {
+	return terminal_column;
+}
+
+void terminal_setcursor(size_t row, size_t column) {
+	if (row >= VGA_HEIGHT)
+		row = VGA_HEIGHT - 1;
+	if (column >= VGA_WIDTH)
+		column = VGA_WIDTH - 1;
+
+	terminal_row = row;
+	terminal_column = column;
+	terminal_update_cursor();
+}
+
+void terminal_clear_line(size_t row) {
+	if (row >= VGA_HEIGHT)
+		return;
+
+	for (size_t x = 0; x < VGA_WIDTH; x++) {
+		terminal_putentryat(' ', terminal_color, x, row);
+	}
+
+	terminal_update_cursor();
+}
+
+void terminal_draw_capslock_indicator(void) {
+	size_t row = 0;
+	size_t col = VGA_WIDTH - 6;
+
+	if (keyboard_capslock_enabled()) {
+		uint8_t on_color = vga_entry_color(VGA_COLOR_BLACK, VGA_COLOR_LIGHT_GREY);
+		terminal_draw_status_text(" CAPS", row, col, on_color);
+	} else {
+		uint8_t off_color = vga_entry_color(VGA_COLOR_DARK_GREY, VGA_COLOR_BLACK);
+		terminal_draw_status_text(" CAPS", row, col, off_color);
+	}
+
 	terminal_update_cursor();
 }
